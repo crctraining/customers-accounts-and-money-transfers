@@ -1,0 +1,141 @@
+eurekaserver:
+  build: ./eureka-server
+  ports:
+    - "8761:8761"
+
+mongodb:
+  image: mongo:3.0.4
+  command: --smallfiles --master
+  ports:
+    - "27017:27017"
+
+
+zookeeper:
+  image: eventuateio/eventuateio-local-zookeeper:0.6.0
+  ports:
+    - 2181:2181
+    - 2888:2888
+    - 3888:3888
+
+
+kafka:
+  image: eventuateio/eventuateio-local-kafka:0.6.0
+  ports:
+    - 9092:9092
+  links:
+    - zookeeper
+  environment:
+    - ADVERTISED_HOST_NAME=${DOCKER_HOST_IP}
+    - KAFKA_HEAP_OPTS=-Xmx320m -Xms320m
+    - ZOOKEEPER_SERVERS=zookeeper:2181
+
+mysql:
+  image: eventuateio/eventuateio-local-mysql:0.6.0
+  ports:
+    - 3306:3306
+  environment:
+    - MYSQL_ROOT_PASSWORD=rootpassword
+    - MYSQL_USER=mysqluser
+    - MYSQL_PASSWORD=mysqlpw
+
+
+cdcservice:
+  image: eventuateio/eventuateio-local-cdc-service:0.6.0
+  extends:
+    file: docker-compose-common.yml
+    service: javaserviceconfig
+  ports:
+    - "8099:8080"
+  links:
+    - mysql
+    - kafka
+    - zookeeper
+
+
+#### Application services
+
+
+#apigatewayservice:
+#  build: ./api-gateway-service
+#  ports:
+#    - "8080:8080"
+#  links:
+#    - eurekaserver
+#  environment:
+#    SPRING_PROFILES_ACTIVE: eurekaServiceDiscovery
+#    EUREKA_HOST: eurekaserver
+#    CUSTOMER_SERVICE_URL: http://CUSTOMER-SERVICE
+#    ACCOUNT_SERVICE_URL: http://ACCOUNT-SERVICE
+#    MONEY_TRANSFER_SERVICE_URL: http://MONEY-TRANSFER-SERVICE
+#    CUSTOMER_VIEW_SERVICE_URL: http://CUSTOMER-VIEW-SERVICE
+#
+#customerservice:
+#  build: ./customer-service
+#  ports:
+#    - "8081:8081"
+#  links:
+#    - kafka
+#    - zookeeper
+#    - mysql
+#    - eurekaserver
+#  environment:
+#    SPRING_PROFILES_ACTIVE: eurekaServiceDiscovery
+#    EUREKA_HOST: eurekaserver
+#    SPRING_DATASOURCE_URL: jdbc:mysql://mysql/eventuate
+#    EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+#    EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING: zookeeper:2181
+#
+#accountservice:
+#  build: ./account-service
+#  ports:
+#    - "8082:8082"
+#  links:
+#    - kafka
+#    - zookeeper
+#    - mysql
+#    - eurekaserver
+#  environment:
+#    SPRING_PROFILES_ACTIVE: eurekaServiceDiscovery
+#    EUREKA_HOST: eurekaserver
+#    CUSTOMER_SERVICE_URL: http://CUSTOMER-SERVICE/api/customers
+#    SPRING_DATASOURCE_URL: jdbc:mysql://mysql/eventuate
+#    EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+#    EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING: zookeeper:2181
+#
+#moneytransferservice:
+#  build: ./money-transfer-service
+#  ports:
+#     - "8083:8083"
+#  links:
+#    - kafka
+#    - zookeeper
+#    - mysql
+#    - eurekaserver
+#  environment:
+#    SPRING_PROFILES_ACTIVE: eurekaServiceDiscovery
+#    EUREKA_HOST: eurekaserver
+#    SPRING_DATASOURCE_URL: jdbc:mysql://mysql/eventuate
+#    ACCOUNT_SERVICE_URL: http://ACCOUNT-SERVICE/api/accounts
+#    EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+#    EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING: zookeeper:2181
+#
+#customerviewservice:
+#  build: ./customer-view-service
+#  ports:
+#     - "8084:8084"
+#  links:
+#    - kafka
+#    - zookeeper
+#    - mysql
+#    - eurekaserver
+#    - mongodb
+#  environment:
+#    SPRING_PROFILES_ACTIVE: eurekaServiceDiscovery
+#    EUREKA_HOST: eurekaserver
+#    SPRING_DATASOURCE_URL: jdbc:mysql://mysql/eventuate
+#    ACCOUNT_SERVICE_URL: http://ACCOUNT-SERVICE/api/accounts
+#    EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+#    EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING: zookeeper:2181
+#    SPRING_DATA_MONGODB_URI: mongodb://mongodb/bankingexampledb
+#
+

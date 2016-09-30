@@ -1,0 +1,4 @@
+dependencies {
+    compile project(":common-domain")
+    compile "io.eventuate.client.java:eventuate-client-java-spring:$eventuateClientVersion"
+}

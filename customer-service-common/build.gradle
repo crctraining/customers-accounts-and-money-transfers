@@ -1,0 +1,6 @@
+dependencies {
+    compile project(":common-domain")
+    compile "io.eventuate.client.java:eventuate-client-java-spring:$eventuateClientVersion"
+
+    compile "org.springframework.boot:spring-boot-starter-validation:$springBootVersion"
+}

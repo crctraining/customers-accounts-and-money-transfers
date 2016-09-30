@@ -1,0 +1,22 @@
+
+customerservice:
+  links:
+    - kafka
+    - zookeeper
+    - mysql
+    - eureka
+  environment:
+    SPRING_PROFILES_ACTIVE: eurekaServiceDiscovery
+    EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+
+accountservice:
+  links:
+    - kafka
+    - zookeeper
+    - mysql
+    - eureka
+  environment:
+    SPRING_PROFILES_ACTIVE: eurekaServiceDiscovery
+    EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+    CUSTOMER_SERVICE_URL: http://CUSTOMER-SERVICE/api/customers
+

@@ -16,6 +16,7 @@ import net.chrisrichardson.bankingexample.testutil.Eventually;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
@@ -30,6 +31,7 @@ public class EndToEndTest {
   private RestTemplate restTemplate = new RestTemplate();
 
   private static String baseUrl(int port, String prefix, String... path) {
+    Assert.notNull(System.getenv("SERVICE_HOST_IP"), "SERVICE_HOST_IP must be set");
     StringBuilder sb = new StringBuilder("http://" + System.getenv("SERVICE_HOST_IP") + ":" + port + "/api" + prefix);
     for (String x : path) {
       sb.append("/").append(x);

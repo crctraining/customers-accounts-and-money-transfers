@@ -1,8 +1,8 @@
 package net.chrisrichardson.bankingexample.moneytransferservice.backend;
 
-import io.eventuate.sync.AggregateRepository;
 import io.eventuate.EntityWithIdAndVersion;
 import io.eventuate.EntityWithMetadata;
+import io.eventuate.sync.AggregateRepository;
 import net.chrisrichardson.bankingexample.moneytransferservice.common.MoneyTransferInfo;
 import org.springframework.stereotype.Service;
 

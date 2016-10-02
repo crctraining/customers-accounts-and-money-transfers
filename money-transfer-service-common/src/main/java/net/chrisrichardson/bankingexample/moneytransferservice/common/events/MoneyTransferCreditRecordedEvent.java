@@ -1,6 +1,5 @@
 package net.chrisrichardson.bankingexample.moneytransferservice.common.events;
 
-import io.eventuate.Event;
 import net.chrisrichardson.bankingexample.moneytransferservice.common.MoneyTransferInfo;
 
 public class MoneyTransferCreditRecordedEvent implements MoneyTransferEvent {

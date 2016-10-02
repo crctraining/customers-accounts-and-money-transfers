@@ -1,8 +1,8 @@
 package net.chrisrichardson.bankingexample.accountservice.webtest;
 
 import net.chrisrichardson.bankingexample.accountservice.backend.AccountMother;
-import net.chrisrichardson.bankingexample.accountservice.web.CreateAccountResponse;
 import net.chrisrichardson.bankingexample.accountservice.common.AccountInfo;
+import net.chrisrichardson.bankingexample.accountservice.web.CreateAccountResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

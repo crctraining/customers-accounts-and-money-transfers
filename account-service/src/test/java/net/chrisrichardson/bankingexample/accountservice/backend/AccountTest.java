@@ -6,7 +6,7 @@ import net.chrisrichardson.bankingexample.accountservice.common.events.AccountDe
 import net.chrisrichardson.bankingexample.commondomain.Money;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class AccountTest extends AggregateTest<Account, AccountCommand> {
 

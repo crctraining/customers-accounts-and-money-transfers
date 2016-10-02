@@ -1,11 +1,10 @@
 package net.chrisrichardson.bankingexample.moneytransferservice.backend;
 
+import io.eventuate.javaclient.spring.EnableEventHandlers;
 import io.eventuate.sync.AggregateRepository;
 import io.eventuate.sync.EventuateAggregateStore;
-import io.eventuate.javaclient.spring.EnableEventHandlers;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableEventHandlers

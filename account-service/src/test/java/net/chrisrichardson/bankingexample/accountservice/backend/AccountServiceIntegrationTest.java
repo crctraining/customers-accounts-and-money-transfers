@@ -13,9 +13,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = AccountJpaIntegrationTestConfiguration.class)
+@SpringApplicationConfiguration(classes = AccountServiceIntegrationTestConfiguration.class)
 @IntegrationTest
-public class AccountServiceJpaIntegrationTest {
+public class AccountServiceIntegrationTest {
 
 
   @Autowired

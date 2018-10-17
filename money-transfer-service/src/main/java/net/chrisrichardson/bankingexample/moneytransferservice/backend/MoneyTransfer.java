@@ -1,64 +1,67 @@
 package net.chrisrichardson.bankingexample.moneytransferservice.backend;
 
-import io.eventuate.Event;
-import io.eventuate.ReflectiveMutableCommandProcessingAggregate;
 import net.chrisrichardson.bankingexample.moneytransferservice.common.MoneyTransferInfo;
-import net.chrisrichardson.bankingexample.moneytransferservice.common.events.MoneyTransferCreatedEvent;
-import net.chrisrichardson.bankingexample.moneytransferservice.common.events.MoneyTransferCreditRecordedEvent;
-import net.chrisrichardson.bankingexample.moneytransferservice.common.events.MoneyTransferDebitRecordedEvent;
-import net.chrisrichardson.bankingexample.moneytransferservice.common.events.MoneyTransferFailedDebitRecordedEvent;
+import net.chrisrichardson.bankingexample.moneytransferservice.common.MoneyTransferState;
 
-import java.util.List;
+import javax.persistence.*;
 
-import static io.eventuate.EventUtil.events;
+@Entity
+@Table(name = "transfers")
+@Access(AccessType.FIELD)
+public class MoneyTransfer  {
 
-public class MoneyTransfer extends ReflectiveMutableCommandProcessingAggregate<MoneyTransfer, MoneyTransferCommand> {
+  @Id
+  @GeneratedValue
+  private Long id;
 
   private MoneyTransferState state;
 
+  @Embedded
   private MoneyTransferInfo moneyTransferInfo;
 
-  public MoneyTransfer() {
+  private MoneyTransfer() {
   }
 
+
+  public MoneyTransfer(MoneyTransferInfo moneyTransferInfo) {
+    this.moneyTransferInfo = moneyTransferInfo;
+    this.state = MoneyTransferState.IN_PROGRESS;
+  }
 
   public MoneyTransferInfo getMoneyTransferInfo() {
     return moneyTransferInfo;
   }
 
-  public List<Event> process(CreateMoneyTransferCommand cmd) {
-    return events(new MoneyTransferCreatedEvent(cmd.getMoneyTransferInfo()));
-  }
-
-  public void apply(MoneyTransferCreatedEvent event) {
-    throw new RuntimeException("not yet implemented");
-  }
-
-  public List<Event> process(RecordDebitCommand cmd) {
-    throw new RuntimeException("not yet implemented");
-  }
-
-  public void apply(MoneyTransferDebitRecordedEvent event) {
-    throw new RuntimeException("not yet implemented");
-  }
-
-  public List<Event> process(RecordCreditCommand cmd) {
-    throw new RuntimeException("not yet implemented");
-  }
-
-  public void apply(MoneyTransferCreditRecordedEvent event) {
-    throw new RuntimeException("not yet implemented");
-  }
-
-  public List<Event> process(RecordDebitFailedDueToInsufficientFundsCommand cmd) {
-    throw new RuntimeException("not yet implemented");
-  }
-
-  public void apply(MoneyTransferFailedDebitRecordedEvent event) {
-    this.state = MoneyTransferState.FAILED_DUE_TO_INSUFFICIENT_FUNDS;
-  }
-
   public MoneyTransferState getState() {
     return state;
   }
+
+
+  public Long getId() {
+    return id;
+  }
+  void setId(long id) {
+    this.id = id;
+  }
+
+  public void complete() {
+    switch (state) {
+      case IN_PROGRESS:
+        this.state = MoneyTransferState.COMPLETED;
+        break;
+      default:
+        throw new RuntimeException("Dont know how recordCredit in this state: " + state);
+    }
+  }
+
+  public void cancel() {
+    switch (state) {
+      case IN_PROGRESS:
+        this.state = MoneyTransferState.FAILED_DUE_TO_INSUFFICIENT_FUNDS;
+        break;
+      default:
+        throw new RuntimeException("Dont know how recordInsufficientFunds in this state: " + state);
+    }
+  }
+
 }

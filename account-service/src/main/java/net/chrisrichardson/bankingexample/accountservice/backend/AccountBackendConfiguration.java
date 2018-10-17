@@ -1,42 +1,32 @@
 package net.chrisrichardson.bankingexample.accountservice.backend;
 
-import io.eventuate.javaclient.spring.EnableEventHandlers;
-import io.eventuate.sync.AggregateRepository;
-import io.eventuate.sync.EventuateAggregateStore;
+import io.eventuate.tram.commands.common.ChannelMapping;
+import io.eventuate.tram.commands.common.DefaultChannelMapping;
+import io.eventuate.tram.events.publisher.DomainEventPublisher;
+import io.eventuate.tram.events.publisher.TramEventsPublisherConfiguration;
+import io.eventuate.tram.sagas.participant.SagaParticipantConfiguration;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.web.client.RestTemplate;
 
 @Configuration
 @EnableTransactionManagement
-@EnableEventHandlers
+@EnableJpaRepositories
+@EntityScan
+@Import({TramEventsPublisherConfiguration.class, SagaParticipantConfiguration.class})
 public class AccountBackendConfiguration {
 
   @Bean
-  public AccountService accountService(CustomerRepository customerRepository, AggregateRepository<Account, AccountCommand> accountAggregateRepository) {
-    return new AccountService(customerRepository, accountAggregateRepository);
+  public AccountService accountService(AccountRepository accountRepository, DomainEventPublisher domainEventPublisher) {
+    return new AccountService(accountRepository, domainEventPublisher);
   }
 
   @Bean
-  @Profile("!eurekaServiceDiscovery")
-  public RestTemplate restTemplate() {
-    return new RestTemplate();
+  public ChannelMapping channelMapping() {
+    return new DefaultChannelMapping.DefaultChannelMappingBuilder().build();
   }
 
-  @Bean
-  public CustomerRepository customerRemoteRepository(RestTemplate restTemplate) {
-    return new CustomerRepositoryProxy(restTemplate);
-  }
-
-  @Bean
-  public AccountEventSubscriber accountEventSubscriber() {
-    return new AccountEventSubscriber();
-  }
-
-  @Bean
-  public AggregateRepository<Account, AccountCommand> accountAggregateRepository(EventuateAggregateStore aggregateStore) {
-    return new AggregateRepository<Account, AccountCommand>(Account.class, aggregateStore);
-  }
 }

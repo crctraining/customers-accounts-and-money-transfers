@@ -3,8 +3,10 @@ package net.chrisrichardson.bankingexample.customerservice.common;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+import javax.persistence.Embeddable;
 import javax.validation.constraints.NotNull;
 
+@Embeddable
 public class Address {
   @NotNull
   private String street1;

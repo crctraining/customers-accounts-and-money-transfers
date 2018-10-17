@@ -1,0 +1,23 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
+    }
+}
+
+apply plugin: "io.spring.dependency-management"
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion"
+    }
+}
+
+
+dependencies {
+    compile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+    compile "org.springframework.cloud:spring-cloud-starter-netflix-eureka-client"
+    compile "org.springframework.cloud:spring-cloud-starter-netflix-ribbon"
+}

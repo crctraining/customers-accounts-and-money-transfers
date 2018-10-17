@@ -2,13 +2,12 @@ package net.chrisrichardson.bankingexample.customerservice.webtest;
 
 import net.chrisrichardson.bankingexample.customerservice.backend.CustomerMother;
 import net.chrisrichardson.bankingexample.customerservice.common.CustomerInfo;
-import net.chrisrichardson.bankingexample.customerservice.web.CreateCustomerResponse;
+import net.chrisrichardson.bankingexample.customerservice.common.CreateCustomerResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 
@@ -16,8 +15,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = CustomerServiceRestApiIntegrationTestConfiguration.class)
-@WebIntegrationTest(randomPort = true)
+@SpringBootTest(classes = CustomerServiceRestApiIntegrationTestConfiguration.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class CustomerServiceRestApiIntegrationTest {
 
   @Value("${local.server.port}")

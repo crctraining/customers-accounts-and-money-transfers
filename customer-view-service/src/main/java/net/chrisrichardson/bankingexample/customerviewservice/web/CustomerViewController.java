@@ -1,7 +1,7 @@
 package net.chrisrichardson.bankingexample.customerviewservice.web;
 
-import net.chrisrichardson.bankingexample.customerviewservice.backend.CustomerView;
 import net.chrisrichardson.bankingexample.customerviewservice.backend.CustomerViewService;
+import net.chrisrichardson.bankingexample.customerviewservice.common.CustomerView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,11 +19,10 @@ public class CustomerViewController {
 
   @RequestMapping(value = "/{id}", method = RequestMethod.GET)
   public ResponseEntity<CustomerView> getCustomer(@PathVariable String id) {
-    CustomerView customerView = customerViewService.findByCustomerId(id);
-    if (customerView == null)
-      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    else
-      return new ResponseEntity<>(customerView, HttpStatus.OK);
+    return customerViewService.findByCustomerId(id)
+            .map(c -> new ResponseEntity<>(c, HttpStatus.OK))
+            .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+
   }
 
 

@@ -1,0 +1,4 @@
+dependencies {
+    compile project(":common-domain")
+    compile project(":customer-service-common")
+}

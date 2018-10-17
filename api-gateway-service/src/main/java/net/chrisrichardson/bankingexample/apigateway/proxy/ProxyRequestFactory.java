@@ -34,11 +34,9 @@ public class ProxyRequestFactory {
   public HttpUriRequest make(HttpServletRequest request) throws URISyntaxException, IOException {
 
     RequestBuilder rb = RequestBuilder.create(request.getMethod());
-    URI targetUrl = makeTargetUrl(request);
+    URI targetUrl = apiGatewayDiscovery.resolveLogicalHostName(makeTargetUrl(request));
     logger.info("Target URL = {}", targetUrl);
-    URI discoveredUrl = apiGatewayDiscovery.resolveLogicalHostName(targetUrl);
-    logger.info("Discovered URL = {}", discoveredUrl);
-    rb.setUri(discoveredUrl);
+    rb.setUri(targetUrl);
 
     Enumeration<String> headerNames = request.getHeaderNames();
     while (headerNames.hasMoreElements()) {
@@ -60,7 +58,10 @@ public class ProxyRequestFactory {
 
   private URI makeTargetUrl(HttpServletRequest request) throws URISyntaxException {
     String requestURI = request.getRequestURI();
-    String baseTargetUrl = apiGatewayProperties.findEndpoint(requestURI, request.getMethod()).getLocation() + requestURI;
+    String location = apiGatewayProperties.findEndpoint(requestURI, request.getMethod()).getLocation();
+    logger.info("location={}", location);
+    logger.info("requestURI={}", requestURI);
+    String baseTargetUrl = location + requestURI;
     if (StringUtils.isNotBlank(request.getQueryString())) {
       return new URI(baseTargetUrl + "?" + request.getQueryString());
     } else {

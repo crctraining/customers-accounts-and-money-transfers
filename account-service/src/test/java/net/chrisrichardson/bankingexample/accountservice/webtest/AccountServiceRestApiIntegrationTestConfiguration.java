@@ -1,7 +1,6 @@
 package net.chrisrichardson.bankingexample.accountservice.webtest;
 
-import io.eventuate.javaclient.spring.jdbc.EmbeddedTestAggregateStoreConfiguration;
-import net.chrisrichardson.bankingexample.accountservice.backend.MockPassengerRepositoryConfiguration;
+import io.eventuate.tram.inmemory.TramInMemoryConfiguration;
 import net.chrisrichardson.bankingexample.accountservice.web.AccountWebConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -10,8 +9,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
-@Import({AccountWebConfiguration.class, MockPassengerRepositoryConfiguration.class,
-        EmbeddedTestAggregateStoreConfiguration.class})
+@Import({AccountWebConfiguration.class, TramInMemoryConfiguration.class})
 @EnableAutoConfiguration
 public class AccountServiceRestApiIntegrationTestConfiguration {
 

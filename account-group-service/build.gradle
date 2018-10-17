@@ -1,0 +1,37 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
+    }
+}
+
+apply plugin: 'org.springframework.boot'
+apply plugin: "io.spring.dependency-management"
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion"
+    }
+}
+
+dependencies {
+    compile project(":common-swagger")
+    compile project(":account-group-service-common")
+
+    compile "io.eventuate.client.java:eventuate-client-java-spring:$eventuateClientVersion"
+
+    compile "io.eventuate.local.java:eventuate-local-java-jdbc:${eventuateLocalVersion}"
+
+    compile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+    compile "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
+
+    if ("true".equals(useEureka)) {
+        compile project(":util-eureka")
+    }
+
+    testCompile "io.eventuate.client.java:eventuate-client-java-test-util:$eventuateClientVersion"
+    testCompile "io.eventuate.client.java:eventuate-client-java-jdbc:$eventuateClientVersion"
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+}

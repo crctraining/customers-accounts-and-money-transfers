@@ -1,36 +1,49 @@
 package net.chrisrichardson.bankingexample.accountservice.backend;
 
-import io.eventuate.Event;
-import io.eventuate.ReflectiveMutableCommandProcessingAggregate;
 import net.chrisrichardson.bankingexample.accountservice.common.AccountInfo;
-import net.chrisrichardson.bankingexample.accountservice.common.events.AccountCreditedEvent;
-import net.chrisrichardson.bankingexample.accountservice.common.events.AccountDebitFailedDueToInsufficientFundsEvent;
-import net.chrisrichardson.bankingexample.accountservice.common.events.AccountDebitedEvent;
-import net.chrisrichardson.bankingexample.accountservice.common.events.AccountOpenedEvent;
+import net.chrisrichardson.bankingexample.accountservice.common.AccountState;
 import net.chrisrichardson.bankingexample.commondomain.Money;
 
-import java.util.List;
+import javax.persistence.*;
 
-import static io.eventuate.EventUtil.events;
+@Entity
+@Table(name = "accounts")
+@Access(AccessType.FIELD)
+public class Account  {
 
-public class Account extends ReflectiveMutableCommandProcessingAggregate<Account, AccountCommand> {
+  @Id
+  @GeneratedValue
+  private Long id;
 
-  private String customerId;
+  private AccountState state;
+
+  private long customerId;
+
 
   private String name;
 
+  @Embedded
   private Money balance;
 
-  public Account() {
+  private Account() {
   }
 
   public Account(AccountInfo accountInfo) {
     this.customerId = accountInfo.getCustomerId();
     this.name = accountInfo.getName();
     this.balance = accountInfo.getBalance();
+    this.state = AccountState.PENDING_CUSTOMER_VALIDATION;
   }
 
-  public String getCustomerId() {
+  public Long getId() {
+    return id;
+  }
+
+  void setId(Long id) {
+    this.id = id;
+  }
+
+  public long getCustomerId() {
     return customerId;
   }
 
@@ -46,32 +59,35 @@ public class Account extends ReflectiveMutableCommandProcessingAggregate<Account
     return new AccountInfo(customerId, name, balance);
   }
 
-  public List<Event> process(OpenAccountCommand cmd) {
-    throw new RuntimeException("not yet implemented");
+  public AccountState getState() {
+    return state;
   }
 
-  public void apply(AccountOpenedEvent event) {
-    throw new RuntimeException("not yet implemented");
+  public void debit(Money amount) {
+    verifyOpen();
+    if (balance.isGreaterOrEqualThan(amount))
+      balance = balance.subtract(amount);
+    else
+      throw new InsufficientFundsException();
   }
 
-  public List<Event> process(DebitAccountCommand cmd) {
-    throw new RuntimeException("not yet implemented");
+  public void credit(Money amount) {
+    verifyOpen();
+    this.balance = balance.add(amount);
   }
 
-  public void apply(AccountDebitedEvent event) {
-    throw new RuntimeException("not yet implemented");
+  private void verifyOpen() {
+    if (state != AccountState.OPEN)
+      throw new AccountNotOpenException("Account is this state: " + state);
   }
 
-  public void apply(AccountDebitFailedDueToInsufficientFundsEvent event) {
-    throw new RuntimeException("not yet implemented");
+
+  public void noteCustomerValidated() {
+    state = AccountState.OPEN;
   }
 
-  public List<Event> process(CreditAccountCommand cmd) {
-    throw new RuntimeException("not yet implemented");
-  }
-
-  public void apply(AccountCreditedEvent event) {
-    throw new RuntimeException("not yet implemented");
+  public void noteCustomerValidationFailed() {
+    state = AccountState.CUSTOMER_VALIDATION_FAILED;
   }
 
 }

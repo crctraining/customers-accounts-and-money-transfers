@@ -5,17 +5,23 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import javax.persistence.Embeddable;
+import javax.persistence.Embedded;
 
+
+@Embeddable
 public class MoneyTransferInfo {
 
-  private String fromAccountId;
-  private String toAccountId;
+  private long fromAccountId;
+  private long toAccountId;
+
+  @Embedded
   private Money amount;
 
   public MoneyTransferInfo() {
   }
 
-  public MoneyTransferInfo(String fromAccountId, String toAccountId, Money amount) {
+  public MoneyTransferInfo(long fromAccountId, long toAccountId, Money amount) {
     this.fromAccountId = fromAccountId;
     this.toAccountId = toAccountId;
     this.amount = amount;
@@ -36,19 +42,19 @@ public class MoneyTransferInfo {
     return HashCodeBuilder.reflectionHashCode(this);
   }
 
-  public String getFromAccountId() {
+  public long getFromAccountId() {
     return fromAccountId;
   }
 
-  public void setFromAccountId(String fromAccountId) {
+  public void setFromAccountId(long fromAccountId) {
     this.fromAccountId = fromAccountId;
   }
 
-  public String getToAccountId() {
+  public long getToAccountId() {
     return toAccountId;
   }
 
-  public void setToAccountId(String toAccountId) {
+  public void setToAccountId(long toAccountId) {
     this.toAccountId = toAccountId;
   }
 

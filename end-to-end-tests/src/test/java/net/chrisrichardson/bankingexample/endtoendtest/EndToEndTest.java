@@ -1,66 +1,66 @@
 package net.chrisrichardson.bankingexample.endtoendtest;
 
+import net.chrisrichardson.bankingexample.accountgroupservice.common.web.AccountGroupInfo;
+import net.chrisrichardson.bankingexample.accountgroupservice.common.web.CreateAccountGroupResponse;
+import net.chrisrichardson.bankingexample.accountgroupservice.common.web.GetAccountGroupResponse;
 import net.chrisrichardson.bankingexample.accountservice.common.AccountInfo;
-import net.chrisrichardson.bankingexample.accountservice.web.CreateAccountResponse;
+import net.chrisrichardson.bankingexample.accountservice.common.AccountState;
+import net.chrisrichardson.bankingexample.accountservice.common.CreateAccountResponse;
+import net.chrisrichardson.bankingexample.accountservice.common.GetAccountResponse;
 import net.chrisrichardson.bankingexample.commondomain.Money;
 import net.chrisrichardson.bankingexample.customerservice.common.Address;
+import net.chrisrichardson.bankingexample.customerservice.common.CreateCustomerResponse;
 import net.chrisrichardson.bankingexample.customerservice.common.CustomerInfo;
 import net.chrisrichardson.bankingexample.customerservice.common.Name;
-import net.chrisrichardson.bankingexample.customerservice.web.CreateCustomerResponse;
-import net.chrisrichardson.bankingexample.customerviewservice.backend.CustomerView;
-import net.chrisrichardson.bankingexample.moneytransferservice.backend.MoneyTransferState;
+import net.chrisrichardson.bankingexample.customerviewservice.common.AccountView;
+import net.chrisrichardson.bankingexample.customerviewservice.common.CustomerView;
+import net.chrisrichardson.bankingexample.moneytransferservice.common.CreateMoneyTransferResponse;
+import net.chrisrichardson.bankingexample.moneytransferservice.common.GetMoneyTransferResponse;
 import net.chrisrichardson.bankingexample.moneytransferservice.common.MoneyTransferInfo;
-import net.chrisrichardson.bankingexample.moneytransferservice.web.CreateMoneyTransferResponse;
-import net.chrisrichardson.bankingexample.moneytransferservice.web.GetMoneyTransferResponse;
+import net.chrisrichardson.bankingexample.moneytransferservice.common.MoneyTransferState;
 import net.chrisrichardson.bankingexample.testutil.Eventually;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Optional;
-
-import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertNotNull;
 
 public class EndToEndTest {
 
   private RestTemplate restTemplate = new RestTemplate();
 
-  private static String baseUrl(int port, String prefix, String... path) {
-    Assert.notNull(System.getenv("SERVICE_HOST_IP"), "SERVICE_HOST_IP must be set");
-    StringBuilder sb = new StringBuilder("http://" + System.getenv("SERVICE_HOST_IP") + ":" + port + "/api" + prefix);
+
+  private static String baseUrl(String prefix, String... path) {
+    String apiGatewayUrl = System.getenv("API_GATEWAY_URL");
+    Assert.notNull(apiGatewayUrl, "API_GATEWAY_URL must be set");
+    StringBuilder sb = new StringBuilder(apiGatewayUrl + "/api" + prefix);
     for (String x : path) {
       sb.append("/").append(x);
     }
     return sb.toString();
   }
 
-
-  private static String getenv(String name, String defaultValue) {
-    return Optional.ofNullable(System.getenv(name)).orElse(defaultValue);
-  }
-
-  private int API_GATEWAY_PORT = Integer.parseInt(getenv("API_GATEWAY_PORT", "8080"));
-
-
   private String customerUrl(String... path) {
-    return baseUrl(API_GATEWAY_PORT, "/customers", path);
+    return baseUrl("/customers", path);
   }
 
   private String customerViewUrl(String... path) {
-    return baseUrl(API_GATEWAY_PORT, "/customerview", path);
+    return baseUrl("/customerview", path);
   }
 
   private String moneyTransferUrl(String... path) {
-    return baseUrl(API_GATEWAY_PORT, "/moneytransfers", path);
+    return baseUrl("/moneytransfers", path);
   }
 
   private String accountUrl(String... path) {
-    return baseUrl(API_GATEWAY_PORT, "/accounts", path);
+    return baseUrl("/accounts", path);
+  }
+
+  private String accountGroupsUrl(String... path) {
+    return baseUrl("/accountgroups", path);
   }
 
   private Money fromInitialBalance = new Money("12.34");
@@ -69,6 +69,78 @@ public class EndToEndTest {
   private Money fromFinalBalance = new Money("12.34").subtract(transferAmount);
   private Money toFinalBalance = new Money("100.86").add(transferAmount);
 
+
+  @Test
+  public void shouldWork() {
+
+    // Given a customer
+
+    long customerId = createCustomer();
+
+    long fromAccountId = createAccount(customerId, fromInitialBalance, "checking");
+
+    assertAccountOpen(fromAccountId);
+
+    assertEquals(fromInitialBalance, getBalance(fromAccountId));
+
+    long toAccountId = createAccount(customerId, toInitialBalance, "saving");
+
+    assertAccountOpen(toAccountId);
+    assertEquals(toInitialBalance, getBalance(toAccountId));
+
+    String accountGroupId = createAccountGroup(null);
+
+    assertAccountGroupCreated(accountGroupId);
+
+    String childAccountGroupId = createAccountGroup(accountGroupId);
+
+    assertAccountGroupCreated(childAccountGroupId);
+
+
+    long moneyTransferId = createMoneyTransfer(fromAccountId, toAccountId, transferAmount);
+
+    assertTransferCompleted(moneyTransferId);
+
+    assertEquals(fromFinalBalance, getBalance(fromAccountId));
+
+    assertEquals(toFinalBalance, getBalance(toAccountId));
+
+
+    assertCustomerViewUpdated(customerId, fromAccountId, fromFinalBalance, toAccountId, toFinalBalance, moneyTransferId);
+
+  }
+
+  private void assertAccountGroupCreated(String accountGroupId) {
+    Eventually.eventually(() -> {
+      assertEquals("CREATED", getAccountGroup(accountGroupId).getState());
+    });
+  }
+
+  private GetAccountGroupResponse getAccountGroup(String accountGroupId) {
+    ResponseEntity<GetAccountGroupResponse> response = restTemplate.getForEntity(accountGroupsUrl(accountGroupId),
+            GetAccountGroupResponse.class);
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    return response.getBody();
+
+  }
+
+  private String createAccountGroup(String parentId) {
+    ResponseEntity<CreateAccountGroupResponse> agr = restTemplate.postForEntity(accountGroupsUrl(),
+            new AccountGroupInfo(parentId, "My Account Grop"),
+            CreateAccountGroupResponse.class);
+    assertEquals(HttpStatus.OK, agr.getStatusCode());
+    return agr.getBody().getAccountGroupId();
+
+  }
+
+  private void assertAccountOpen(long accountId) {
+    Eventually.eventually(() -> {
+      assertEquals(AccountState.OPEN, getAccount(accountId).getState());
+    });
+
+  }
+
+  /*
   @Test
   public void createAccountWithBadCustomerId() {
     try {
@@ -80,43 +152,29 @@ public class EndToEndTest {
     }
 
   }
+  */
 
-  @Test
-  public void shouldWork() {
+  private void assertTransferCompleted(long moneyTransferId) {
+    Eventually.eventually(() -> {
+      ResponseEntity<GetMoneyTransferResponse> response = restTemplate.getForEntity(moneyTransferUrl(Long.toString(moneyTransferId)),
+              GetMoneyTransferResponse.class);
+      assertEquals(HttpStatus.OK, response.getStatusCode());
+      assertEquals(MoneyTransferState.COMPLETED, response.getBody().getState());
 
-    // Given a customer
-
-    String customerId = createCustomer();
-
-    // and a fromAccount
-
-    String fromAccountId = createAccount(customerId, fromInitialBalance, "checking");
-
-    // and a toAccount
-
-    String toAccountId = createAccount(customerId, toInitialBalance, "saving");
-
-    // when I transfer money
-
-    String moneyTransferId = createMoneyTransfer(fromAccountId, toAccountId, transferAmount);
-
-    // then the transfer completes
-
-    assertTranferCompleted(moneyTransferId);
-
-    // and the from account is debited
-
-    assertAccountBalance(fromAccountId, fromFinalBalance);
-
-    // and the to account is credited
-
-    assertAccountBalance(toAccountId, toFinalBalance);
-
-    assertCustomerViewUpdated(customerId, toAccountId, fromAccountId, moneyTransferId);
+    });
   }
 
+  private long createMoneyTransfer(long fromAccountId, long toAccountId, Money transferAmount) {
+    MoneyTransferInfo moneyTransferInfo = new MoneyTransferInfo(fromAccountId, toAccountId, transferAmount);
+    ResponseEntity<CreateMoneyTransferResponse> createMoneyTransferResponse = restTemplate.postForEntity(moneyTransferUrl(),
+            moneyTransferInfo,
+            CreateMoneyTransferResponse.class);
+    assertEquals(HttpStatus.OK, createMoneyTransferResponse.getStatusCode());
+    CreateMoneyTransferResponse moneyTransferResponse = createMoneyTransferResponse.getBody();
+    return moneyTransferResponse.getId();
+  }
 
-  private String createCustomer() {
+  private long createCustomer() {
 
     CustomerInfo customerInfo = new CustomerInfo(
             new Name("John", "Doe"), "510-555-1212",
@@ -129,33 +187,7 @@ public class EndToEndTest {
     return customerResponse.getId();
   }
 
-  private void assertAccountBalance(String accountId, Money expectedBalance) {
-    Eventually.eventually(() -> {
-      assertEquals(expectedBalance, getBalance(accountId));
-    });
-  }
-
-  private void assertTranferCompleted(String moneyTransferId) {
-    Eventually.eventually(() -> {
-      ResponseEntity<GetMoneyTransferResponse> response = restTemplate.getForEntity(moneyTransferUrl(moneyTransferId),
-              GetMoneyTransferResponse.class);
-      assertEquals(HttpStatus.OK, response.getStatusCode());
-      assertEquals(MoneyTransferState.COMPLETED, response.getBody().getState());
-
-    });
-  }
-
-  private String createMoneyTransfer(String fromAccountId, String toAccountId, Money transferAmount) {
-    MoneyTransferInfo moneyTransferInfo = new MoneyTransferInfo(fromAccountId, toAccountId, transferAmount);
-    ResponseEntity<CreateMoneyTransferResponse> createMoneyTransferResponse = restTemplate.postForEntity(moneyTransferUrl(),
-            moneyTransferInfo,
-            CreateMoneyTransferResponse.class);
-    assertEquals(HttpStatus.OK, createMoneyTransferResponse.getStatusCode());
-    CreateMoneyTransferResponse moneyTransferResponse = createMoneyTransferResponse.getBody();
-    return moneyTransferResponse.getId();
-  }
-
-  private String createAccount(String customerId, Money fromInitialBalance, String fromAccountTitle) {
+  private long createAccount(long customerId, Money fromInitialBalance, String fromAccountTitle) {
     ResponseEntity<CreateAccountResponse> createAccount1 = restTemplate.postForEntity(accountUrl(),
             new AccountInfo(customerId, fromAccountTitle, fromInitialBalance),
             CreateAccountResponse.class);
@@ -164,22 +196,34 @@ public class EndToEndTest {
     return accountBody1.getId();
   }
 
-  private Money getBalance(String accountId) {
-    ResponseEntity<AccountInfo> response = restTemplate.getForEntity(accountUrl(accountId),
-            AccountInfo.class);
-    assertEquals(HttpStatus.OK, response.getStatusCode());
-    return response.getBody().getBalance();
+  private Money getBalance(long accountId) {
+    AccountInfo accountInfo = getAccount(accountId).getAccountInfo();
+    return accountInfo.getBalance();
   }
 
-  private void assertCustomerViewUpdated(String customerId, String toAccountId, String fromAccountId, String moneyTransferId) {
-    Eventually.eventually(() -> {
+  private GetAccountResponse getAccount(long accountId) {
+    ResponseEntity<GetAccountResponse> response = restTemplate.getForEntity(accountUrl(Long.toString(accountId)),
+            GetAccountResponse.class);
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    return response.getBody();
+  }
 
-      ResponseEntity<CustomerView> response = restTemplate.getForEntity(customerViewUrl(customerId), CustomerView.class);
+
+  private void assertCustomerViewUpdated(long customerId, long fromAccountId, Money fromExpectedBalance,
+                                         long toAccountId, Money toExpectedBalance, long moneyTransferId) {
+    Eventually.eventually(() -> {
+      ResponseEntity<CustomerView> response = restTemplate.getForEntity(customerViewUrl(Long.toString(customerId)), CustomerView.class);
       assertEquals(HttpStatus.OK, response.getStatusCode());
       CustomerView customerView = response.getBody();
-      assertNotNull(customerView.getAccounts().get(toAccountId));
-      assertNotNull(customerView.getAccounts().get(fromAccountId));
 
+      AccountView fromAccount = customerView.getAccounts().get(Long.toString(fromAccountId));
+      assertNotNull(fromAccount);
+      assertEquals(fromExpectedBalance, fromAccount.getBalance());
+
+      AccountView toAccount = customerView.getAccounts().get(Long.toString(toAccountId));
+      assertNotNull(toAccount);
+      assertEquals(toExpectedBalance, toAccount.getBalance());
     });
   }
+
 }

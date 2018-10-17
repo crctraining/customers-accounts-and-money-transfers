@@ -3,13 +3,19 @@ package net.chrisrichardson.bankingexample.customerservice.common;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+import javax.persistence.Embeddable;
+import javax.persistence.Embedded;
 
+
+@Embeddable
 public class CustomerInfo {
 
+  @Embedded
   private Name name;
 
   private String phoneNumber;
 
+  @Embedded
   private Address address;
 
   private String ssn;

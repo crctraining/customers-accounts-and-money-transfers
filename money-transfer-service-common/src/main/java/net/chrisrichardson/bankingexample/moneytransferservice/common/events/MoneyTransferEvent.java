@@ -1,8 +1,6 @@
 package net.chrisrichardson.bankingexample.moneytransferservice.common.events;
 
-import io.eventuate.Event;
-import io.eventuate.EventEntity;
+import io.eventuate.tram.events.common.DomainEvent;
 
-@EventEntity(entity = "net.chrisrichardson.bankingexample.moneytransferservice.backend.MoneyTransfer")
-public interface MoneyTransferEvent extends Event {
+public interface MoneyTransferEvent extends DomainEvent {
 }

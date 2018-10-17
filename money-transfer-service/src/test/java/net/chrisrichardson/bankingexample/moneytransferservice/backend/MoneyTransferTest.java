@@ -1,30 +1,24 @@
 package net.chrisrichardson.bankingexample.moneytransferservice.backend;
 
-import io.eventuate.testutil.AggregateTest;
 import net.chrisrichardson.bankingexample.moneytransferservice.common.MoneyTransferInfo;
+import net.chrisrichardson.bankingexample.moneytransferservice.common.MoneyTransferState;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
 
-public class MoneyTransferTest extends AggregateTest<MoneyTransfer, MoneyTransferCommand> {
+public class MoneyTransferTest  {
 
-  public MoneyTransferTest() {
-    super(MoneyTransfer.class);
-  }
+  private MoneyTransfer aggregate;
 
   @Test
   public void shouldTransferMoney() {
     MoneyTransferInfo moneyTransferInfo = MoneyTransferMother.makeMoneyTransfer();
-    create(new CreateMoneyTransferCommand(moneyTransferInfo));
+    aggregate = new MoneyTransfer(moneyTransferInfo);
 
-    assertEquals(MoneyTransferState.NEW, aggregate.getState());
+    assertEquals(MoneyTransferState.IN_PROGRESS, aggregate.getState());
 
-    update(new RecordDebitCommand(moneyTransferInfo.getFromAccountId()));
-
-    assertEquals(MoneyTransferState.DEBITED, aggregate.getState());
-
-    update(new RecordCreditCommand(moneyTransferInfo.getToAccountId()));
+    aggregate.complete();
 
     assertEquals(MoneyTransferState.COMPLETED, aggregate.getState());
 
@@ -33,11 +27,11 @@ public class MoneyTransferTest extends AggregateTest<MoneyTransfer, MoneyTransfe
   @Test
   public void shouldFailDueToInsufficientFunds() {
     MoneyTransferInfo moneyTransferInfo = MoneyTransferMother.makeMoneyTransfer();
-    create(new CreateMoneyTransferCommand(moneyTransferInfo));
+    aggregate = new MoneyTransfer(moneyTransferInfo);
 
-    assertEquals(MoneyTransferState.NEW, aggregate.getState());
+    assertEquals(MoneyTransferState.IN_PROGRESS, aggregate.getState());
 
-    update(new RecordDebitFailedDueToInsufficientFundsCommand(moneyTransferInfo.getFromAccountId()));
+    aggregate.cancel();
 
     assertEquals(MoneyTransferState.FAILED_DUE_TO_INSUFFICIENT_FUNDS, aggregate.getState());
 

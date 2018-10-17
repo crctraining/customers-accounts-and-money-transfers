@@ -5,14 +5,14 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 public class AccountInfo {
-  private String customerId;
+  private long customerId;
   private String name;
   private Money balance;
 
   public AccountInfo() {
   }
 
-  public AccountInfo(String customerId, String name, Money balance) {
+  public AccountInfo(long customerId, String name, Money balance) {
     this.customerId = customerId;
     this.name = name;
     this.balance = balance;
@@ -28,7 +28,7 @@ public class AccountInfo {
     return HashCodeBuilder.reflectionHashCode(this);
   }
 
-  public String getCustomerId() {
+  public long getCustomerId() {
     return customerId;
   }
 

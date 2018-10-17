@@ -1,28 +1,48 @@
 package net.chrisrichardson.bankingexample.moneytransferservice.backend;
 
-import io.eventuate.EntityWithIdAndVersion;
-import io.eventuate.EntityWithMetadata;
-import io.eventuate.sync.AggregateRepository;
+import io.eventuate.tram.sagas.orchestration.SagaManager;
 import net.chrisrichardson.bankingexample.moneytransferservice.common.MoneyTransferInfo;
+import net.chrisrichardson.bankingexample.moneytransferservice.sagas.TransferMoneySagaState;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
+@Transactional
 public class MoneyTransferService {
 
-  private final AggregateRepository<MoneyTransfer, MoneyTransferCommand> moneyTransferRepository;
+  private final MoneyTransferRepository moneyTransferRepository;
+  private final SagaManager<TransferMoneySagaState> transferMoneySagaManager;
 
-  public MoneyTransferService(AggregateRepository<MoneyTransfer, MoneyTransferCommand> moneyTransferRepository) {
+  public MoneyTransferService(MoneyTransferRepository moneyTransferRepository, SagaManager<TransferMoneySagaState> transferMoneySagaManager) {
     this.moneyTransferRepository = moneyTransferRepository;
+    this.transferMoneySagaManager = transferMoneySagaManager;
   }
 
-  public EntityWithIdAndVersion<MoneyTransfer> createMoneyTransfer(MoneyTransferInfo moneyTransferInfo) {
+  public MoneyTransfer createMoneyTransfer(MoneyTransferInfo moneyTransferInfo) {
 
-    // TODO verify that the from/toAccounts exist
+    MoneyTransfer mt = new MoneyTransfer(moneyTransferInfo);
+    moneyTransferRepository.save(mt);
 
-    return moneyTransferRepository.save(new CreateMoneyTransferCommand(moneyTransferInfo));
+    createTransferMoneySaga(mt.getId(), moneyTransferInfo);
+    throw new RuntimeException("not yet implemented");
   }
 
-  public EntityWithMetadata<MoneyTransfer> findMoneyTransfer(String id) {
-    return moneyTransferRepository.find(id);
+  private void createTransferMoneySaga(Long moneyTransferId, MoneyTransferInfo moneyTransferInfo) {
+    TransferMoneySagaState data = new TransferMoneySagaState(moneyTransferId, moneyTransferInfo);
+    transferMoneySagaManager.create(data);
+  }
+
+  public Optional<MoneyTransfer> findMoneyTransfer(long id) {
+    return moneyTransferRepository.findById(id);
+  }
+
+  public void completeTransfer(long moneyTransferId) {
+    moneyTransferRepository.findById(moneyTransferId).get().complete();
+  }
+
+  public void cancelTransfer(long moneyTransferId) {
+    moneyTransferRepository.findById(moneyTransferId).get().cancel();
   }
 }

@@ -1,22 +1,16 @@
 package net.chrisrichardson.bankingexample.accountservice.web;
 
-import io.eventuate.EntityNotFoundException;
 import net.chrisrichardson.bankingexample.accountservice.backend.AccountService;
-import net.chrisrichardson.bankingexample.accountservice.backend.CustomerNotFoundException;
 import net.chrisrichardson.bankingexample.accountservice.common.AccountInfo;
+import net.chrisrichardson.bankingexample.accountservice.common.CreateAccountResponse;
+import net.chrisrichardson.bankingexample.accountservice.common.GetAccountResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 
@@ -36,33 +30,16 @@ public class AccountController {
   @RequestMapping(method = RequestMethod.POST)
   public CreateAccountResponse createAccount(@Validated @RequestBody AccountInfo accountInfo) {
     assertNotNull(accountInfo);
-    return new CreateAccountResponse(accountService.createAccount(accountInfo).getEntityId());
+    return new CreateAccountResponse(accountService.openAccount(accountInfo).getId());
   }
 
   @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-  public AccountInfo getAccount(@PathVariable String id) {
-    return accountService.findAccount(id).getAccountInfo();
+  public ResponseEntity<GetAccountResponse> getAccount(@PathVariable long id) {
+    return accountService.findAccount(id)
+            .map(c -> new ResponseEntity<>(new GetAccountResponse(c.getAccountInfo(), c.getState()), HttpStatus.OK))
+            .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
   }
 
-  @ExceptionHandler(EntityNotFoundException.class)
-  @ResponseStatus(HttpStatus.NOT_FOUND)
-  public void notFound() {
-  }
 
-  @ExceptionHandler(CustomerNotFoundException.class)
-  @ResponseStatus(value=HttpStatus.BAD_REQUEST, reason="Invalid customerId")
-  public void badCustomerId() {
-  }
-
-//  @ExceptionHandler(HystrixRuntimeException.class)
-//  public ResponseEntity<String> badCustomerIdNested(HystrixRuntimeException e) {
-//    if (e.getCause() instanceof CustomerNotFoundException) {
-//      return new ResponseEntity<>("Invalid customerId", HttpStatus.BAD_REQUEST);
-//    } else {
-//      logger.error("Hystrix related exception", e);
-//      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-//    }
-//
-//  }
 
 }

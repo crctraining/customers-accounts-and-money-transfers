@@ -18,13 +18,15 @@ dependencyManagement {
 test {
     ignoreFailures (!project.hasProperty("ignoreE2EFailures") || ignoreE2EFailures.toBoolean())
 }
-
 dependencies {
-    compile project(":money-transfer-service")
-    compile project(":customer-service")
-    compile project(":account-service")
-    compile project(":customer-view-service")
+    compile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+    compile project(":customer-service-common")
+    compile project(":account-service-common")
+    compile project(":money-transfer-service-common")
+    compile project(":customer-view-service-common")
+    compile project(":account-group-service-common")
 
     testCompile project(":test-util")
 
 }
+

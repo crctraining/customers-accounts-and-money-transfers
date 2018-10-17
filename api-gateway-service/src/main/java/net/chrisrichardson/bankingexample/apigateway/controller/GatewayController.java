@@ -18,16 +18,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.multiaction.NoSuchRequestHandlingMethodException;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
 public class GatewayController {
@@ -52,7 +49,7 @@ public class GatewayController {
   }
 
   @RequestMapping(value = "/api/**", method = {GET, POST, DELETE})
-  public ResponseEntity<String> proxyRequest(HttpServletRequest request) throws NoSuchRequestHandlingMethodException, IOException, URISyntaxException {
+  public ResponseEntity<String> proxyRequest(HttpServletRequest request) throws IOException, URISyntaxException {
     logger.info("original request {} {}", request.getMethod(), request.getRequestURI());
     HttpUriRequest proxiedRequest = proxyRequestFactory.make(request);
     logger.info("request: {}", proxiedRequest);
@@ -76,6 +73,8 @@ public class GatewayController {
 
   @ExceptionHandler({NoServiceInstancesAvailableException.class, HttpClientIOException.class})
   @ResponseStatus(value=HttpStatus.SERVICE_UNAVAILABLE, reason="service unavailable")
-  public void clientIOException() {}
+  public void clientIOException(HttpClientIOException e) {
+    e.printStackTrace();
+  }
 
 }

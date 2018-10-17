@@ -6,16 +6,17 @@ import net.chrisrichardson.bankingexample.customerservice.common.CustomerInfo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = CustomerServiceIntegrationTestConfiguration.class)
-@IntegrationTest
+@SpringBootTest(classes = CustomerServiceIntegrationTestConfiguration.class, webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class CustomerServiceIntegrationTest {
 
   @Autowired
@@ -26,12 +27,12 @@ public class CustomerServiceIntegrationTest {
 
     CustomerInfo customerInfo = CustomerMother.makeCustomer();
 
-    EntityWithIdAndVersion<Customer> savedCustomer = customerService.createCustomer(customerInfo);
+    Customer savedCustomer = customerService.createCustomer(customerInfo);
 
-    EntityWithMetadata<Customer> loadedCustomer = customerService.findCustomer(savedCustomer.getEntityId());
+    Optional<Customer> loadedCustomer = customerService.findCustomer(savedCustomer.getId());
 
-    assertNotNull(loadedCustomer);
+    assertTrue(loadedCustomer.isPresent());
 
-    assertEquals(customerInfo, loadedCustomer.getEntity().getCustomerInfo());
+    assertEquals(customerInfo, loadedCustomer.get().getCustomerInfo());
   }
 }

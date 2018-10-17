@@ -1,20 +1,20 @@
 package net.chrisrichardson.bankingexample.accountservice.backend;
 
-import io.eventuate.EntityWithIdAndVersion;
 import net.chrisrichardson.bankingexample.accountservice.common.AccountInfo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.Optional;
+
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = AccountServiceIntegrationTestConfiguration.class)
-@IntegrationTest
+@SpringBootTest(classes = AccountServiceIntegrationTestConfiguration.class, webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class AccountServiceIntegrationTest {
 
 
@@ -24,16 +24,17 @@ public class AccountServiceIntegrationTest {
   @Test
   public void shouldSaveAndLoadAccount() {
 
-    AccountInfo accountInfo = AccountMother.makeAccount("customer-123");
+    AccountInfo accountInfo = AccountMother.makeAccount();
 
-    // Account savedAccount = accountService.createAccount(accountInfo);
-    EntityWithIdAndVersion<Account> savedAccount = accountService.createAccount(accountInfo);
+    // Account savedAccount = accountService.openAccount(accountInfo);
+    Account savedAccount = accountService.openAccount(accountInfo);
 
     //    Account loadedAccount = accountService.findAccount(savedAccount.getId());
-    Account loadedAccount = accountService.findAccount(savedAccount.getEntityId());
+    Optional<Account> loadedAccount = accountService.findAccount(savedAccount.getId());
 
-    assertNotNull(loadedAccount);
+    assertTrue(loadedAccount.isPresent());
 
-    assertEquals(accountInfo, loadedAccount.getAccountInfo());
+    assertEquals(accountInfo, loadedAccount.get().getAccountInfo());
   }
+
 }

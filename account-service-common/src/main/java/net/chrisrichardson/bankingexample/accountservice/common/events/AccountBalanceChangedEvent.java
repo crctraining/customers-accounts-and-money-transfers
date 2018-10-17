@@ -7,9 +7,9 @@ public class AccountBalanceChangedEvent implements AccountEvent {
   protected Money amount;
   protected Money newBalance;
   protected String transactionId;
-  protected String customerId;
+  protected long customerId;
 
-  public AccountBalanceChangedEvent(String customerId, Money amount, Money newBalance, String transactionId) {
+  public AccountBalanceChangedEvent(long customerId, Money amount, Money newBalance, String transactionId) {
     this.customerId = customerId;
     this.amount = amount;
     this.newBalance = newBalance;
@@ -31,7 +31,7 @@ public class AccountBalanceChangedEvent implements AccountEvent {
     return transactionId;
   }
 
-  public String getCustomerId() {
+  public long getCustomerId() {
     return customerId;
   }
 }

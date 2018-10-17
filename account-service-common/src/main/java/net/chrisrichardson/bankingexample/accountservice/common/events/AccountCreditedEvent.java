@@ -7,7 +7,7 @@ public class AccountCreditedEvent extends AccountBalanceChangedEvent {
   public AccountCreditedEvent() {
   }
 
-  public AccountCreditedEvent(String customerId, Money amount, Money newBalance, String transactionId) {
+  public AccountCreditedEvent(long customerId, Money amount, Money newBalance, String transactionId) {
     super(customerId, amount, newBalance, transactionId);
   }
 

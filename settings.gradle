@@ -1,16 +1,32 @@
 include "eureka-server"
 include "common-swagger"
 include "common-domain"
+include "test-util"
+
 include "customer-service-common"
 include "customer-service"
+
 include "account-service-common"
 include "account-service"
+
+
 include "money-transfer-service"
+
 include "money-transfer-service-common"
+
+include "customer-view-service-common"
+
 include "customer-view-service"
-include "test-util"
-include "util-service"
+
+include "util-eureka"
+include "util-hystrix"
+
 include "api-gateway-service"
+
 include "end-to-end-tests"
+
+include "account-group-service-common"
+
+include "account-group-service"
 
 rootProject.name = "banking-example"

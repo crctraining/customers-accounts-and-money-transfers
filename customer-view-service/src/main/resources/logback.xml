@@ -19,7 +19,7 @@
     <logger name="net.chrisrichardson.bankingexample" level='info'>
     </logger>
 
-    <logger name="io.eventuate.activity" level='debug'>
+    <logger name="io.eventuate" level='debug'>
     </logger>
 
 </configuration>

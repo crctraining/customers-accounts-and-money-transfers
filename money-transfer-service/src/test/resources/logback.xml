@@ -22,7 +22,7 @@
     <logger name="org.springframework.web.client" level='trace'>
     </logger>
 
-    <logger name="io.eventuate.activity" level='debug'>
+    <logger name="io.eventuate" level='debug'>
     </logger>
 
     <logger name="com.netflix.discovery" level='debug'>

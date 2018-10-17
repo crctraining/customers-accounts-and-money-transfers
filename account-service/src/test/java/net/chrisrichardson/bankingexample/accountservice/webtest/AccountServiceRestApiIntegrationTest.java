@@ -2,13 +2,13 @@ package net.chrisrichardson.bankingexample.accountservice.webtest;
 
 import net.chrisrichardson.bankingexample.accountservice.backend.AccountMother;
 import net.chrisrichardson.bankingexample.accountservice.common.AccountInfo;
-import net.chrisrichardson.bankingexample.accountservice.web.CreateAccountResponse;
+import net.chrisrichardson.bankingexample.accountservice.common.GetAccountResponse;
+import net.chrisrichardson.bankingexample.accountservice.common.CreateAccountResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 
@@ -16,8 +16,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = AccountServiceRestApiIntegrationTestConfiguration.class)
-@WebIntegrationTest(randomPort = true)
+@SpringBootTest(classes = AccountServiceRestApiIntegrationTestConfiguration.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class AccountServiceRestApiIntegrationTest {
 
 
@@ -34,7 +33,7 @@ public class AccountServiceRestApiIntegrationTest {
   @Test
   public void shouldSaveAndLoadAccount() {
 
-    AccountInfo accountInfo = AccountMother.makeAccount("customer-123");
+    AccountInfo accountInfo = AccountMother.makeAccount();
 
 
     CreateAccountResponse accountResponse = restTemplate.postForEntity(baseUrl("/accounts"),
@@ -42,13 +41,12 @@ public class AccountServiceRestApiIntegrationTest {
             CreateAccountResponse.class).getBody();
 
 
-    assertNotNull(accountResponse.getId());
 
-    AccountInfo loadedAccountInfo = restTemplate.getForEntity(baseUrl("/accounts/" + accountResponse.getId()),
-            AccountInfo.class).getBody();
+    GetAccountResponse loadedAccountInfo = restTemplate.getForEntity(baseUrl("/accounts/" + accountResponse.getId()),
+            GetAccountResponse.class).getBody();
 
     assertNotNull(loadedAccountInfo);
 
-    assertEquals(accountInfo, loadedAccountInfo);
+    assertEquals(accountInfo, loadedAccountInfo.getAccountInfo());
   }
 }

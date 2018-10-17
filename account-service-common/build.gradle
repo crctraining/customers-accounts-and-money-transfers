@@ -1,4 +1,12 @@
+
 dependencies {
     compile project(":common-domain")
-    compile "io.eventuate.client.java:eventuate-client-java-spring:$eventuateClientVersion"
+    compileOnly "org.springframework.boot:spring-boot-starter-data-jpa:$springBootVersion"
+    compile "io.eventuate.tram.core:eventuate-tram-events:$eventuateTramVersion"
+
+    // tram-command has extra dependencies
+
+    compile ("io.eventuate.tram.core:eventuate-tram-commands:$eventuateTramVersion")  {
+        exclude module: "spring-boot-starter-jdbc"
+    }
 }

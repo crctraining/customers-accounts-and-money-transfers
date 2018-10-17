@@ -1,6 +1,16 @@
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+  dependencies {
+    classpath "gradle.plugin.com.palantir.gradle.docker:gradle-docker:0.20.1"
+  }
+}
+
 subprojects {
     apply plugin: 'java'
-
     targetCompatibility = 1.8
     sourceCompatibility = 1.8
 
@@ -13,7 +23,7 @@ subprojects {
     dependencies {
         compile 'commons-lang:commons-lang:2.6'
 
-        testCompile 'junit:junit:4.11'
+        testCompile 'junit:junit:4.12'
         testCompile 'org.mockito:mockito-core:1.9.5'
     }
 }

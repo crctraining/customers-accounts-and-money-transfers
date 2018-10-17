@@ -1,6 +1,8 @@
 package net.chrisrichardson.bankingexample.customerviewservice.backend;
 
 import io.eventuate.javaclient.spring.EnableEventHandlers;
+import io.eventuate.tram.events.subscriber.DomainEventDispatcher;
+import io.eventuate.tram.messaging.consumer.MessageConsumer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -8,7 +10,6 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 
 @Configuration
 @EnableMongoRepositories
-@EnableEventHandlers
 public class CustomerViewBackendConfiguration {
 
   @Bean
@@ -17,7 +18,25 @@ public class CustomerViewBackendConfiguration {
   }
 
   @Bean
-  public CustomerViewEventSubscriber customerViewEventSubscriber(CustomerViewService customerViewService) {
-    return new CustomerViewEventSubscriber(customerViewService);
+  public CustomerViewCustomerEventSubscriber customerViewEventSubscriber(CustomerViewService customerViewService) {
+    return new CustomerViewCustomerEventSubscriber(customerViewService);
   }
+
+
+  @Bean
+  public DomainEventDispatcher customerViewServiceCustomerEventsDispatcher(CustomerViewCustomerEventSubscriber customerViewCustomerEventSubscriber, MessageConsumer messageConsumer) {
+    return new DomainEventDispatcher("customerViewServiceCustomerEventsDispatcher", customerViewCustomerEventSubscriber.domainEventHandlers(), messageConsumer);
+  }
+
+  @Bean
+  public CustomerViewAccountEventsSubscriber customerViewAccountEventsSubscriber(CustomerViewService customerViewService) {
+    return new CustomerViewAccountEventsSubscriber(customerViewService);
+  }
+
+
+  @Bean
+  public DomainEventDispatcher customerViewAccountEventsSubscriberDispatcher(CustomerViewAccountEventsSubscriber customerViewAccountEventsSubscriber, MessageConsumer messageConsumer) {
+    return new DomainEventDispatcher("customerViewAccountEventsSubscriberDispatcher", customerViewAccountEventsSubscriber.domainEventHandlers(), messageConsumer);
+  }
+
 }

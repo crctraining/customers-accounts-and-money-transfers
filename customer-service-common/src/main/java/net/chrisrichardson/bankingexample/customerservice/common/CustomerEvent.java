@@ -1,8 +1,6 @@
 package net.chrisrichardson.bankingexample.customerservice.common;
 
-import io.eventuate.Event;
-import io.eventuate.EventEntity;
+import io.eventuate.tram.events.common.DomainEvent;
 
-@EventEntity(entity = "net.chrisrichardson.bankingexample.customerservice.backend.Customer")
-public interface CustomerEvent extends Event {
+public interface CustomerEvent extends DomainEvent {
 }

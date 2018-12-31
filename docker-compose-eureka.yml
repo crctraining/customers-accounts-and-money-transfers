@@ -4,3 +4,5 @@ services:
     build: ./eureka-server
     ports:
       - "8761:8761"
+    environment:
+      JAVA_OPTS: -Xmx192m

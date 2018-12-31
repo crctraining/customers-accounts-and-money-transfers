@@ -36,7 +36,7 @@ spec:
           name: httpport
         env:
           - name: JAVA_TOOL_OPTIONS
-            value: "-Xmx256m"
+            value: "-Xmx192m -Dsun.net.inetaddr.ttl=30 -verbose:gc"
           - name: CUSTOMER_SERVICE_URL
             value: http://customer-service:8081
           - name: ACCOUNT_SERVICE_URL
@@ -46,5 +46,5 @@ spec:
           - name: CUSTOMER_VIEW_SERVICE_URL
             value: http://customer-view-service:8084
           - name: ACCOUNT_GROUP_SERVICE_URL
-            value: http://account-groups-service:8085
+            value: http://account-group-service:8085
 ---

@@ -18,7 +18,7 @@ echo host=$host path=$path ports=$ports
 
 while [[ "$done" = false ]]; do
         for port in $ports; do
-                curl -q http://${host}:${port}${path} >& /dev/null
+                curl --fail http://${host}:${port}${path} >& /dev/null
                 if [[ "$?" -eq "0" ]]; then
                         done=true
                 else

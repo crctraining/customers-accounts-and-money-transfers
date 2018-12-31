@@ -1,4 +1,4 @@
-include "eureka-server"
+// include "eureka-server"
 include "common-swagger"
 include "common-domain"
 include "test-util"
@@ -23,7 +23,7 @@ include "util-hystrix"
 
 include "api-gateway-service"
 
-include "end-to-end-tests"
+// include "end-to-end-tests"
 
 include "account-group-service-common"
 

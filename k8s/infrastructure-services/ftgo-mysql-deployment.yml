@@ -27,8 +27,8 @@ spec:
       terminationGracePeriodSeconds: 10
       containers:
         - name: ftgo-mysql
-          image: msapatterns/mysql:latest
-          imagePullPolicy: Always
+          image: eventuateio/eventuate-tram-sagas-mysql:0.10.0.M2
+          imagePullPolicy: IfNotPresent
           args:
               - "--ignore-db-dir=lost+found"
           ports:

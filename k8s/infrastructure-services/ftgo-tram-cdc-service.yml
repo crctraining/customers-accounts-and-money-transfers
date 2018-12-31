@@ -6,6 +6,7 @@ spec:
   ports:
   - port: 8080
     targetPort: 8080
+  type: NodePort
   selector:
     svc: ftgo-tram-cdc-service
 ---
@@ -27,44 +28,39 @@ spec:
     spec:
       containers:
       - name: ftgo-tram-cdc-service
-        image: eventuateio/eventuate-tram-cdc-mysql-service:0.10.0.RELEASE
-        imagePullPolicy: Always
+        image: eventuateio/eventuate-tram-cdc-mysql-service:0.20.0.M7
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
           name: httpport
-        command: ["bash", "-c", "java -Dsun.net.inetaddr.ttl=30 -jar *.jar" ]
         env:
-          - name: JAVA_OPTS
-            value: "-Dsun.net.inetaddr.ttl=30"
-          - name: SPRING_DATASOURCE_URL
-            value: jdbc:mysql://ftgo-mysql/eventuate
-          - name: SPRING_DATASOURCE_USERNAME
-            valueFrom:
-              secretKeyRef:
-                name: ftgo-db-secret
-                key: username
-          - name: SPRING_DATASOURCE_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: ftgo-db-secret
-                key: password
-          - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
-            value: com.mysql.jdbc.Driver
+          - name: JAVA_TOOL_OPTIONS
+            value: "-Xmx192m -Dsun.net.inetaddr.ttl=30 -verbose:gc"
           - name: EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS
             value: ftgo-kafka:9092
           - name: EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING
             value: ftgo-zookeeper:2181
-          - name: EVENTUATELOCAL_CDC_DB_USER_NAME
-            value: root
-          - name: EVENTUATELOCAL_CDC_DB_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: ftgo-db-root-secret
-                key: password
-          - name: EVENTUATELOCAL_CDC_BINLOG_CLIENT_ID
-            value: "1234567890"
-          - name: EVENTUATELOCAL_CDC_SOURCE_TABLE_NAME
-            value: message
+          - name: EVENTUATE_CDC_PIPELINE_PROPERTIES
+            value: >
+              [{"type":"eventuate-local",
+              "sourceTableName":"events",
+              "reader":"reader1"},
+              {"type":"eventuate-tram",
+              "reader":"reader1"}]
+          - name: EVENTUATE_CDC_PIPELINE_READER_PROPERTIES
+            value: >
+              [{"type":"mysql-binlog",
+              "name":"reader1",
+              "dataSourceUrl":"jdbc:mysql://ftgo-mysql/eventuate",
+              "dataSourceUserName":"mysqluser",
+              "dataSourcePassword":"mysqlpw",
+              "dataSourceDriverClassName":"com.mysql.jdbc.Driver",
+              "leadershipLockPath":"/ftgo/cdc/leader/reader/1",
+              "cdcDbUserName":"root",
+              "cdcDbPassword":"rootpassword",
+              "oldDebeziumDbHistoryTopicName":"none",
+              "binlogClientId": 1,
+              "mySqlBinLogClientName": "MySqlBinLog"}]
         livenessProbe:
           httpGet:
             path: /health

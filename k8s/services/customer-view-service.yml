@@ -36,9 +36,7 @@ spec:
           name: httpport
         env:
           - name: JAVA_TOOL_OPTIONS
-            value: "-Xmx256m"
-          - name: JAVA_OPTS
-            value: "-Dsun.net.inetaddr.ttl=30"
+            value: "-Xmx192m -Dsun.net.inetaddr.ttl=30 -verbose:gc"
           - name: SPRING_DATASOURCE_URL
             value: jdbc:mysql://ftgo-mysql/eventuate
           - name: SPRING_DATASOURCE_USERNAME

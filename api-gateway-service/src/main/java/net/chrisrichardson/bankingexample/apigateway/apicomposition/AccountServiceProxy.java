@@ -1,7 +1,5 @@
 package net.chrisrichardson.bankingexample.apigateway.apicomposition;
 
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import net.chrisrichardson.bankingexample.accountservice.common.GetAccountResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +17,6 @@ public class AccountServiceProxy {
     this.restTemplate = restTemplate;
   }
 
-  @HystrixCommand(commandProperties = @HystrixProperty(name="execution.isolation.thread.timeoutInMilliseconds", value="1000"))
   public Optional<GetAccountResponse> getAccount(long accountId) {
     ResponseEntity<GetAccountResponse> response = restTemplate.getForEntity("http://ACCOUNT-SERVICE/api/accounts/" + accountId, GetAccountResponse.class);
     switch (response.getStatusCode()) {

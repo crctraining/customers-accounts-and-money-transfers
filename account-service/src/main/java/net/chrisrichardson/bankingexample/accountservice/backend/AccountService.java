@@ -33,7 +33,7 @@ public class AccountService {
   }
 
   private void publishAccountOpenedEvent(Account account) {
-    domainEventPublisher.publish(Account.class, account.getId(), Collections.singletonList(new AccountOpenedEvent(account.getAccountInfo())));
+    throw new RuntimeException("not yet implemented");
   }
 
   public Optional<Account> findAccount(long id) {

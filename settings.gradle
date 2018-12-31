@@ -7,7 +7,7 @@ include "customer-service-common"
 include "customer-service"
 
 include "account-service-common"
-include "account-service"
+// include "account-service"
 
 
 // include "money-transfer-service"

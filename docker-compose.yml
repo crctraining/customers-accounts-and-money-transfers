@@ -67,82 +67,82 @@ services:
         "binlogClientId": 1,
         "mySqlBinLogClientName": "MySqlBinLog"}]
 
-  customer-service:
-    build: ./customer-service
-    depends_on:
-      - cdc-service
-    ports:
-      - "8081:8081"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql/eventuate
-      EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING: zookeeper:2181
-      JAVA_OPTS: -Xmx192m
-      EUREKA_HOST: eureka-server
-# end container
-  api-gateway-service:
-    build: ./api-gateway-service
-    ports:
-      - "8080:8080"
-    environment:
-      CUSTOMER_SERVICE_URL: http://customer-service:8081
-      ACCOUNT_SERVICE_URL: http://account-service:8082
-      MONEY_TRANSFER_SERVICE_URL: http://money-transfer-service:8083
-      CUSTOMER_VIEW_SERVICE_URL: http://customer-view-service:8084
-      ACCOUNT_GROUP_SERVICE_URL: http://account-group-service:8085
-      EUREKA_HOST: eureka-server
-      JAVA_OPTS: -Xmx192m
-# end container
-  account-service:
-    build: ./account-service
-    ports:
-      - "8082:8082"
-    depends_on:
-      - cdc-service
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql/eventuate
-      EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING: zookeeper:2181
-      JAVA_OPTS: -Xmx192m
-      EUREKA_HOST: eureka-server
-# end container
-  money-transfer-service:
-    build: ./money-transfer-service
-    ports:
-      - "8083:8083"
-    depends_on:
-      - cdc-service
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql/eventuate
-      EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING: zookeeper:2181
-      JAVA_OPTS: -Xmx192m
-      EUREKA_HOST: eureka-server
-# end container
-  customer-view-service:
-    build: ./customer-view-service
-    depends_on:
-      - cdc-service
-    ports:
-      - "8084:8084"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql/eventuate
-      EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING: zookeeper:2181
-      SPRING_DATA_MONGODB_URI: mongodb://mongodb/bankingexampledb
-      EUREKA_HOST: eureka-server
-      JAVA_OPTS: -Xmx192m
-# end container
-  account-group-service:
-      build: ./account-group-service
-      depends_on:
-        - cdc-service
-      ports:
-        - "8085:8085"
-      environment:
-        SPRING_DATASOURCE_URL: jdbc:mysql://mysql/eventuate
-        EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-        EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING: zookeeper:2181
-        JAVA_OPTS: -Xmx192m
-        EUREKA_HOST: eureka-server
-# end container
+#  customer-service:
+#    build: ./customer-service
+#    depends_on:
+#      - cdc-service
+#    ports:
+#      - "8081:8081"
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:mysql://mysql/eventuate
+#      EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+#      EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING: zookeeper:2181
+#      JAVA_OPTS: -Xmx192m
+#      EUREKA_HOST: eureka-server
+## end container
+#  api-gateway-service:
+#    build: ./api-gateway-service
+#    ports:
+#      - "8080:8080"
+#    environment:
+#      CUSTOMER_SERVICE_URL: http://customer-service:8081
+#      ACCOUNT_SERVICE_URL: http://account-service:8082
+#      MONEY_TRANSFER_SERVICE_URL: http://money-transfer-service:8083
+#      CUSTOMER_VIEW_SERVICE_URL: http://customer-view-service:8084
+#      ACCOUNT_GROUP_SERVICE_URL: http://account-group-service:8085
+#      EUREKA_HOST: eureka-server
+#      JAVA_OPTS: -Xmx192m
+## end container
+#  account-service:
+#    build: ./account-service
+#    ports:
+#      - "8082:8082"
+#    depends_on:
+#      - cdc-service
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:mysql://mysql/eventuate
+#      EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+#      EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING: zookeeper:2181
+#      JAVA_OPTS: -Xmx192m
+#      EUREKA_HOST: eureka-server
+## end container
+#  money-transfer-service:
+#    build: ./money-transfer-service
+#    ports:
+#      - "8083:8083"
+#    depends_on:
+#      - cdc-service
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:mysql://mysql/eventuate
+#      EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+#      EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING: zookeeper:2181
+#      JAVA_OPTS: -Xmx192m
+#      EUREKA_HOST: eureka-server
+## end container
+#  customer-view-service:
+#    build: ./customer-view-service
+#    depends_on:
+#      - cdc-service
+#    ports:
+#      - "8084:8084"
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:mysql://mysql/eventuate
+#      EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+#      EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING: zookeeper:2181
+#      SPRING_DATA_MONGODB_URI: mongodb://mongodb/bankingexampledb
+#      EUREKA_HOST: eureka-server
+#      JAVA_OPTS: -Xmx192m
+## end container
+#  account-group-service:
+#      build: ./account-group-service
+#      depends_on:
+#        - cdc-service
+#      ports:
+#        - "8085:8085"
+#      environment:
+#        SPRING_DATASOURCE_URL: jdbc:mysql://mysql/eventuate
+#        EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+#        EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING: zookeeper:2181
+#        JAVA_OPTS: -Xmx192m
+#        EUREKA_HOST: eureka-server
+## end container

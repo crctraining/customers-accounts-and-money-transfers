@@ -21,7 +21,7 @@ include "customer-view-service"
 include "util-eureka"
 include "util-hystrix"
 
-include "api-gateway-service"
+// include "api-gateway-service"
 
 // include "end-to-end-tests"
 

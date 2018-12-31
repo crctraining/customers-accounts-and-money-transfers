@@ -1,7 +1,5 @@
 package net.chrisrichardson.bankingexample.apigateway.apicomposition;
 
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import net.chrisrichardson.bankingexample.customerservice.common.CustomerInfo;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +19,6 @@ public class CustomerServiceProxy {
 
   private ConcurrentHashMap<Long, CustomerInfo> cachedCustomerInfo = new ConcurrentHashMap<>();
 
-  @HystrixCommand(fallbackMethod = "getCachedCustomerInfo", commandProperties = @HystrixProperty(name="execution.isolation.thread.timeoutInMilliseconds", value="1000"))
   public CustomerInfo getCustomer(long customerId) {
     ResponseEntity<CustomerInfo> response = restTemplate.getForEntity("http://CUSTOMER-SERVICE/api/customers/" + customerId, CustomerInfo.class);
     if (response.getStatusCode() != HttpStatus.OK)

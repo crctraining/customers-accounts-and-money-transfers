@@ -39,12 +39,7 @@ public class AccountCommandHandlers {
   }
 
   public Message credit(CommandMessage<CreditCommand> cm) {
-    try {
-      accountService.credit(cm.getCommand().getAccountId(), cm.getCommand().getAmount());
-      return withSuccess();
-    } catch (InsufficientFundsException e) {
-      return withFailure(new InsufficientFundsReply());
-    }
+    throw new RuntimeException("not yet implemented");
   }
 
 

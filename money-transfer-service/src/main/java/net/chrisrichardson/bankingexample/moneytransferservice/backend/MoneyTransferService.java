@@ -26,8 +26,7 @@ public class MoneyTransferService {
     moneyTransferRepository.save(mt);
 
     createTransferMoneySaga(mt.getId(), moneyTransferInfo);
-
-    return mt;
+    throw new RuntimeException("not yet implemented");
   }
 
   private void createTransferMoneySaga(Long moneyTransferId, MoneyTransferInfo moneyTransferInfo) {

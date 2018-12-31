@@ -17,17 +17,7 @@ public class TransferMoneySaga implements SimpleSaga<TransferMoneySagaState> {
   }
 
   private void initializeSagaDefinition(AccountServiceProxy accountingService, MoneyTransferServiceProxy moneyTransferService) {
-    this.sagaDefinition =
-             step()
-              .withCompensation(moneyTransferService.cancel, TransferMoneySagaState::makeCancelMoneyTransferCommand)
-            .step()
-              .invokeParticipant(accountingService.debit, TransferMoneySagaState::makeDebitAccountCommand)
-              .withCompensation(accountingService.credit, TransferMoneySagaState::makeReverseDebitCommand)
-            .step()
-              .invokeParticipant(accountingService.credit, TransferMoneySagaState::makeCreditAccountCommand)
-            .step()
-              .invokeParticipant(moneyTransferService.complete, TransferMoneySagaState::makeCompleteMoneyTransferCommand)
-            .build();
+    throw new RuntimeException("not yet implemented");
   }
 
 

@@ -10,7 +10,7 @@ include "account-service-common"
 include "account-service"
 
 
-include "money-transfer-service"
+// include "money-transfer-service"
 
 include "money-transfer-service-common"
 

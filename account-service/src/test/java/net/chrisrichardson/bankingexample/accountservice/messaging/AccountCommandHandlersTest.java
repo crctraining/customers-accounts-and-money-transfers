@@ -40,20 +40,20 @@ public class AccountCommandHandlersTest {
 
   }
 
-  @Test
-  public void shouldHandleCreditCommand() {
-    given().
-        commandHandlers(accountCommandHandlers.commandHandlers()).
-    when().
-        receives(new CreditCommand(accountId, amount)).
-    then().
-        verify((reply) -> {
-          verify(accountService).credit(accountId, amount);
-          assertReplyTypeEquals(Success.class, reply);
-        })
-    ;
-
-  }
+//  @Test
+//  public void shouldHandleCreditCommand() {
+//    given().
+//        commandHandlers(accountCommandHandlers.commandHandlers()).
+//    when().
+//        receives(new CreditCommand(accountId, amount)).
+//    then().
+//        verify((reply) -> {
+//          verify(accountService).credit(accountId, amount);
+//          assertReplyTypeEquals(Success.class, reply);
+//        })
+//    ;
+//
+//  }
 
 
 

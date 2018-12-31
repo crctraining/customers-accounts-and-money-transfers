@@ -15,15 +15,7 @@ public class AccountGroup extends ReflectiveMutableCommandProcessingAggregate<Ac
   private String parentId;
 
   public List<Event> process(CreateAccountGroup cmd) {
-    switch (state) {
-      case NEW:
-        if (cmd.getParentId() == null)
-          return EventUtil.events(new AccountGroupCreated(cmd.getParentId(), cmd.getName()));
-        else
-          return EventUtil.events(new AccountGroupCreatedPendingParentValidation(cmd.getParentId(), cmd.getName()));
-      default:
-        throw new UnsupportedOperationException("Bad state: " + state);
-    }
+    throw new RuntimeException("not yet implemented");
   }
 
   public List<Event> process(CreateMissingParent cmd) {
@@ -53,12 +45,7 @@ public class AccountGroup extends ReflectiveMutableCommandProcessingAggregate<Ac
   }
 
   public List<Event> process(AddAccount cmd) {
-    switch (state) {
-      case CREATED:
-        return EventUtil.events(new AccountAdded(cmd.getAccountId()));
-      default:
-        throw new UnsupportedOperationException("Bad state: " + state);
-    }
+    throw new RuntimeException("not yet implemented");
   }
 
   public List<Event> process(AddChildGroup cmd) {
@@ -71,9 +58,7 @@ public class AccountGroup extends ReflectiveMutableCommandProcessingAggregate<Ac
   }
 
   public void apply(AccountGroupCreated event) {
-    this.name = event.getName();
-    this.parentId = null;
-    this.state = AccountGroupState.CREATED;
+    throw new RuntimeException("not yet implemented");
   }
 
   public void apply(AccountGroupCreatedPendingParentValidation event) {
@@ -103,7 +88,7 @@ public class AccountGroup extends ReflectiveMutableCommandProcessingAggregate<Ac
   }
 
   public void apply(AccountAdded event) {
-    // TODO
+    throw new RuntimeException("not yet implemented");
   }
 
   public AccountGroupState getState() {

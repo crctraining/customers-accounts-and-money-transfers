@@ -27,6 +27,6 @@ include "util-hystrix"
 
 include "account-group-service-common"
 
-include "account-group-service"
+// include "account-group-service"
 
 rootProject.name = "banking-example"

@@ -17,7 +17,7 @@ public class AccountGroupService {
   }
 
   public EntityWithIdAndVersion<AccountGroup> createAccountGroup(AccountGroupInfo accountGroupInfo) {
-    return accountGroupRepository.save(new CreateAccountGroup(accountGroupInfo.getParentId(), accountGroupInfo.getName()));
+    throw new RuntimeException("not yet implemented");
   }
 
   public EntityWithIdAndVersion<AccountGroup> addAccount(String accountGroupId, String accountId) {
@@ -25,7 +25,7 @@ public class AccountGroupService {
   }
 
   public EntityWithMetadata<AccountGroup> findAccountGroup(String accountGroupId) {
-    return accountGroupRepository.find(accountGroupId);
+    throw new RuntimeException("not yet implemented");
   }
 
   public EntityWithIdAndVersion<AccountGroup> verifyParentGroupExists(String parentId, String childId) {

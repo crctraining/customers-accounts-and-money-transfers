@@ -16,7 +16,7 @@ include "money-transfer-service-common"
 
 include "customer-view-service-common"
 
-include "customer-view-service"
+// include "customer-view-service"
 
 include "util-eureka"
 include "util-hystrix"

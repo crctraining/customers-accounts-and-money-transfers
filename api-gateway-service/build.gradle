@@ -22,7 +22,7 @@ dependencies {
     compile project(":customer-service-common")
     compile project(":account-service-common")
 
-    compile project(":util-hystrix")
+//     compile project(":util-hystrix")
 
     if ("true".equals(useEureka)) {
         compile project(":util-eureka")

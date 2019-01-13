@@ -14,6 +14,7 @@ public class MoneyTransfer  {
   @GeneratedValue
   private Long id;
 
+  @Enumerated(EnumType.STRING)
   private MoneyTransferState state;
 
   @Embedded

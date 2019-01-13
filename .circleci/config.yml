@@ -1,0 +1,19 @@
+version:               2
+jobs:
+  build:
+    machine:           true
+    working_directory: ~/customers-accounts-and-money-transfers
+    steps:
+      - checkout
+      - restore_cache:
+          key:         customers-accounts-and-money-transfers-{{ checksum "build.gradle" }}
+      - run:           TERM=dumb ./gradlew testClasses
+      - save_cache:
+          paths:
+            - ~/.gradle
+            - ~/.m2
+          key:         customers-accounts-and-money-transfers-{{ checksum "build.gradle" }}
+      - run:
+          command:     |
+            export TERM=dumb
+            ./gradlew testClasses

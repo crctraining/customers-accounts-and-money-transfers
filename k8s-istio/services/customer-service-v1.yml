@@ -1,0 +1,59 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: customer-service-v1
+  labels:
+    application: ftgo
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        svc: customer-service
+        application: ftgo
+        version: v1
+    spec:
+      containers:
+      - name: customer-service
+        image: customer-service:1.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8081
+          name: httpport
+        env:
+          - name: JAVA_TOOL_OPTIONS
+            value: "-Xmx192m -Dsun.net.inetaddr.ttl=30 -verbose:gc"
+          - name: SPRING_DATASOURCE_URL
+            value: jdbc:mysql://ftgo-mysql/eventuate
+          - name: SPRING_DATASOURCE_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: ftgo-db-secret
+                key: username
+          - name: SPRING_DATASOURCE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: ftgo-db-secret
+                key: password
+          - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+            value: com.mysql.jdbc.Driver
+          - name: EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS
+            value: ftgo-kafka:9092
+          - name: EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING
+            value: ftgo-zookeeper:2181
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8081
+          initialDelaySeconds: 20
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8081
+          initialDelaySeconds: 20
+          periodSeconds: 20
+---

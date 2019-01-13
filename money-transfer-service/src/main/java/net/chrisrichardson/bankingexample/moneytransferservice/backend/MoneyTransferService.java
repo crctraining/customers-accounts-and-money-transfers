@@ -26,12 +26,12 @@ public class MoneyTransferService {
     moneyTransferRepository.save(mt);
 
     createTransferMoneySaga(mt.getId(), moneyTransferInfo);
-    throw new RuntimeException("not yet implemented");
+
+    return mt;
   }
 
   private void createTransferMoneySaga(Long moneyTransferId, MoneyTransferInfo moneyTransferInfo) {
-    TransferMoneySagaState data = new TransferMoneySagaState(moneyTransferId, moneyTransferInfo);
-    transferMoneySagaManager.create(data);
+    throw new RuntimeException("not yet implemented");
   }
 
   public Optional<MoneyTransfer> findMoneyTransfer(long id) {

@@ -34,17 +34,17 @@ public class AccountCommandHandlers {
   }
 
   public Message debit(CommandMessage<DebitCommand> cm) {
-    accountService.debit(cm.getCommand().getAccountId(), cm.getCommand().getAmount());
-    return withSuccess();
-  }
-
-  public Message credit(CommandMessage<CreditCommand> cm) {
     try {
-      accountService.credit(cm.getCommand().getAccountId(), cm.getCommand().getAmount());
+      accountService.debit(cm.getCommand().getAccountId(), cm.getCommand().getAmount());
       return withSuccess();
     } catch (InsufficientFundsException e) {
       return withFailure(new InsufficientFundsReply());
     }
+  }
+
+  public Message credit(CommandMessage<CreditCommand> cm) {
+    accountService.credit(cm.getCommand().getAccountId(), cm.getCommand().getAmount());
+    return withSuccess();
   }
 
 

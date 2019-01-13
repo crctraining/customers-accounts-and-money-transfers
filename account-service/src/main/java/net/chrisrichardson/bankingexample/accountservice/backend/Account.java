@@ -15,6 +15,7 @@ public class Account  {
   @GeneratedValue
   private Long id;
 
+  @Enumerated(EnumType.STRING)
   private AccountState state;
 
   private long customerId;

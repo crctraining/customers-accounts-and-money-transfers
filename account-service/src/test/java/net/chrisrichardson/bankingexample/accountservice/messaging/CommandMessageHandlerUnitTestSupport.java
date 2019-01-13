@@ -1,9 +1,6 @@
 package net.chrisrichardson.bankingexample.accountservice.messaging;
 
-import io.eventuate.tram.commands.common.Command;
-import io.eventuate.tram.commands.common.DefaultChannelMapping;
-import io.eventuate.tram.commands.common.ReplyMessageHeaders;
-import io.eventuate.tram.commands.common.Success;
+import io.eventuate.tram.commands.common.*;
 import io.eventuate.tram.commands.consumer.CommandDispatcher;
 import io.eventuate.tram.commands.consumer.CommandHandlers;
 import io.eventuate.tram.commands.consumer.CommandMessage;
@@ -75,7 +72,7 @@ public class CommandMessageHandlerUnitTestSupport {
     return this;
   }
 
-  public static void assertReplyTypeEquals(Class<Success> replyType, Message reply) {
+  public static void assertReplyTypeEquals(Class<?> replyType, Message reply) {
     assertEquals(replyType.getName(), reply.getRequiredHeader(ReplyMessageHeaders.REPLY_TYPE));
   }
 

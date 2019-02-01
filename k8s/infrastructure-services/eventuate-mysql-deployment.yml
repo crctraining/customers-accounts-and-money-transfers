@@ -1,33 +1,33 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: ftgo-mysql
+  name: eventuate-mysql
   labels:
-    name: ftgo-mysql
+    name: eventuate-mysql
 spec:
   ports:
   - port: 3306
     targetPort: 3306
   clusterIP: None
   selector:
-    role: ftgo-mysql
+    role: eventuate-mysql
 ---
 apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
-  name: ftgo-mysql
+  name: eventuate-mysql
 spec:
   serviceName: "mysql"
   replicas: 1
   template:
     metadata:
       labels:
-        role: ftgo-mysql
+        role: eventuate-mysql
     spec:
       terminationGracePeriodSeconds: 10
       containers:
-        - name: ftgo-mysql
-          image: eventuateio/eventuate-tram-sagas-mysql:0.10.0.M2
+        - name: eventuate-mysql
+          image: eventuateio/eventuate-tram-sagas-mysql:0.10.0.M3
           imagePullPolicy: IfNotPresent
           args:
               - "--ignore-db-dir=lost+found"
@@ -37,16 +37,16 @@ spec:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: ftgo-db-root-secret
+                  name: eventuate-db-root-secret
                   key: password
             - name: MYSQL_USER
               valueFrom:
                 secretKeyRef:
-                  name: ftgo-db-secret
+                  name: eventuate-db-secret
                   key: username
             - name: MYSQL_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: ftgo-db-secret
+                  name: eventuate-db-secret
                   key: password
 ---

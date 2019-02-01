@@ -9,7 +9,7 @@ services:
 
 
   zookeeper:
-    image: eventuateio/eventuateio-local-zookeeper:0.30.0.M8
+    image: eventuateio/eventuateio-local-zookeeper:0.30.0.M12
     ports:
       - 2181:2181
       - 2888:2888
@@ -17,7 +17,7 @@ services:
 
 
   kafka:
-    image: eventuateio/eventuateio-local-kafka:0.30.0.M8
+    image: eventuateio/eventuateio-local-kafka:0.30.0.M12
     ports:
       - 9092:9092
     depends_on:
@@ -28,7 +28,7 @@ services:
       - ZOOKEEPER_SERVERS=zookeeper:2181
 
   mysql:
-    image: eventuateio/eventuate-tram-sagas-mysql:0.10.0.M2
+    image: eventuateio/eventuate-tram-sagas-mysql:0.10.0.M3
     ports:
       - 3306:3306
     environment:
@@ -38,7 +38,7 @@ services:
 
 
   cdc-service:
-    image: eventuateio/eventuate-tram-cdc-mysql-service:0.20.0.M7
+    image: eventuateio/eventuate-tram-cdc-mysql-service:0.20.0.M11
     ports:
       - "8099:8080"
     depends_on:
@@ -47,25 +47,27 @@ services:
     environment:
       EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING: zookeeper:2181
-      EVENTUATE_CDC_PIPELINE_PROPERTIES: >
-        [{"type":"eventuate-local",
-        "sourceTableName":"events",
-        "reader":"reader1"},
-        {"type":"eventuate-tram",
-        "reader":"reader1"}]
-      EVENTUATE_CDC_PIPELINE_READER_PROPERTIES: >
-        [{"type":"mysql-binlog",
-        "name":"reader1",
-        "dataSourceUrl":"jdbc:mysql://mysql/eventuate",
-        "dataSourceUserName":"mysqluser",
-        "dataSourcePassword":"mysqlpw",
-        "dataSourceDriverClassName":"com.mysql.jdbc.Driver",
-        "leadershipLockPath":"/ftgo/cdc/leader/reader/1",
-        "cdcDbUserName":"root",
-        "cdcDbPassword":"rootpassword",
-        "oldDebeziumDbHistoryTopicName":"none",
-        "binlogClientId": 1,
-        "mySqlBinLogClientName": "MySqlBinLog"}]
+      EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING: zookeeper:2181
+
+      EVENTUATE_CDC_PIPELINE_PIPELINE1_TYPE: eventuate-local
+      EVENTUATE_CDC_PIPELINE_PIPELINE1_READER: reader1
+
+      EVENTUATE_CDC_PIPELINE_PIPELINE2_TYPE: eventuate-tram
+      EVENTUATE_CDC_PIPELINE_PIPELINE2_READER: reader1
+
+      EVENTUATE_CDC_READER_READER1_TYPE: mysql-binlog
+      EVENTUATE_CDC_READER_READER1_DATASOURCEURL: jdbc:mysql://${DOCKER_HOST_IP}:3306/eventuate
+      EVENTUATE_CDC_READER_READER1_DATASOURCEUSERNAME: mysqluser
+      EVENTUATE_CDC_READER_READER1_DATASOURCEPASSWORD: mysqlpw
+      EVENTUATE_CDC_READER_READER1_DATASOURCEDRIVERCLASSNAME: com.mysql.jdbc.Driver
+      EVENTUATE_CDC_READER_READER1_LEADERSHIPLOCKPATH: /eventuate/cdc/leader/eventuatelocal
+      EVENTUATE_CDC_READER_READER1_BINLOGCLIENTID: 1
+      EVENTUATE_CDC_READER_READER1_CDCDBUSERNAME: root
+      EVENTUATE_CDC_READER_READER1_CDCDBPASSWORD: rootpassword
+      EVENTUATE_CDC_READER_READER1_READOLDDEBEZIUMDBOFFSETSTORAGETOPIC: "false"
+      EVENTUATE_CDC_READER_READER1_MYSQLBINLOGCLIENTNAME: ClientEventuateLocal
+      EVENTUATE_CDC_READER_READER1_OFFSETSTORAGETOPICNAME: db.history.eventuate.local
 
   customer-service:
     build: ./customer-service

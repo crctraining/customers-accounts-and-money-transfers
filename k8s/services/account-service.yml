@@ -40,23 +40,23 @@ spec:
           - name: JAVA_OPTS
             value: "-Dsun.net.inetaddr.ttl=30"
           - name: SPRING_DATASOURCE_URL
-            value: jdbc:mysql://ftgo-mysql/eventuate
+            value: jdbc:mysql://eventuate-mysql/eventuate
           - name: SPRING_DATASOURCE_USERNAME
             valueFrom:
               secretKeyRef:
-                name: ftgo-db-secret
+                name: eventuate-db-secret
                 key: username
           - name: SPRING_DATASOURCE_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: ftgo-db-secret
+                name: eventuate-db-secret
                 key: password
           - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
             value: com.mysql.jdbc.Driver
           - name: EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS
-            value: ftgo-kafka:9092
+            value: eventuate-kafka:9092
           - name: EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING
-            value: ftgo-zookeeper:2181
+            value: eventuate-zookeeper:2181
         livenessProbe:
           httpGet:
             path: /actuator/health

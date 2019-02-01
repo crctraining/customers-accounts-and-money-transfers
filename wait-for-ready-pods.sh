@@ -1,6 +1,6 @@
 #! /bin/bash
 
-services="customer-service account-group-service  account-service customer-view-service money-transfer-service"
+services="customer-service account-group-service  account-service customer-view-service money-transfer-service eventuate-tram-cdc-service"
 
 done=false
 

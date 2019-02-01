@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: ftgo-kafka-config
+  name: eventuate-kafka-config
 data:
   server.properties: |
     # Licensed to the Apache Software Foundation (ASF) under one or more

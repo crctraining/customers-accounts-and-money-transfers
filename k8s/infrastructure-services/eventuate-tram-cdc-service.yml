@@ -1,0 +1,105 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: eventuate-tram-cdc-service
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: NodePort
+  selector:
+    svc: eventuate-tram-cdc-service
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: eventuate-tram-cdc-service
+  labels:
+    application: ftgo
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        svc: eventuate-tram-cdc-service
+    spec:
+      containers:
+      - name: eventuate-tram-cdc-service
+        image: eventuateio/eventuate-tram-cdc-mysql-service:0.20.0.M11
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+          name: httpport
+        env:
+          - name: JAVA_TOOL_OPTIONS
+            value: "-Xmx192m -Dsun.net.inetaddr.ttl=30 -verbose:gc"
+          - name: EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS
+            value: eventuate-kafka:9092
+          - name: EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING
+            value: eventuate-zookeeper:2181
+
+          - name: EVENTUATE_CDC_PIPELINE_PIPELINE1_TYPE
+            value: eventuate-local
+          - name: EVENTUATE_CDC_PIPELINE_PIPELINE1_READER
+            value: reader1
+
+          - name: EVENTUATE_CDC_PIPELINE_PIPELINE2_TYPE
+            value: eventuate-tram
+          - name: EVENTUATE_CDC_PIPELINE_PIPELINE2_READER
+            value: reader1
+
+          - name: EVENTUATE_CDC_READER_READER1_TYPE
+            value: mysql-binlog
+          - name: EVENTUATE_CDC_READER_READER1_DATASOURCEURL
+            value: jdbc:mysql://eventuate-mysql:3306/eventuate
+
+          - name: EVENTUATE_CDC_READER_READER1_DATASOURCEUSERNAME
+            valueFrom:
+              secretKeyRef:
+                name: eventuate-db-secret
+                key: username
+          - name: EVENTUATE_CDC_READER_READER1_DATASOURCEPASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: eventuate-db-secret
+                key: password
+
+          - name: EVENTUATE_CDC_READER_READER1_DATASOURCEDRIVERCLASSNAME
+            value: com.mysql.jdbc.Driver
+          - name: EVENTUATE_CDC_READER_READER1_LEADERSHIPLOCKPATH
+            value: /eventuate/cdc/leader/eventuatelocal
+
+          - name: EVENTUATE_CDC_READER_READER1_BINLOGCLIENTID
+            value: "1"
+
+          - name: EVENTUATE_CDC_READER_READER1_CDCDBUSERNAME
+            value: root
+
+          - name: EVENTUATE_CDC_READER_READER1_CDCDBPASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: eventuate-db-root-secret
+                key: password
+
+          - name: EVENTUATE_CDC_READER_READER1_READOLDDEBEZIUMDBOFFSETSTORAGETOPIC
+            value: "false"
+          - name: EVENTUATE_CDC_READER_READER1_MYSQLBINLOGCLIENTNAME
+            value: ClientEventuateLocal
+          - name: EVENTUATE_CDC_READER_READER1_OFFSETSTORAGETOPICNAME
+            value: db.history.eventuate.local
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 20
+---
